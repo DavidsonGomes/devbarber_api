@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+
+  app:
+    image: davidsongomes/php-apache-laravel
+    container_name: devbarber-app
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mariadb
+    networks:
+      - devbarber-network
+    ports:
+      - 80:80
+      - 443:443
+
+  mariadb:
+    image: mariadb:10.6
+    container_name: devbarber-db
+    restart: always
+    # command: "mysqld --init-file /data/application/init.sql"
+    volumes:
+      - ./mariadb-data:/var/lib/mysql
+      # - ./init.sql:/data/application/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - devbarber-network
+    ports:
+      - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: devbarber-phpmyadmin
+    ports:
+      - 8000:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mariadb
+    depends_on:
+      - mariadb
+    networks:
+      - devbarber-network
+
+networks:
+  devbarber-network:
+    driver: bridge
