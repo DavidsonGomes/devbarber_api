@@ -11,5 +11,5 @@ class Barber extends Model
 
     protected $table = 'barbers';
 
-    protected $timestamps = false;
+    public $timestamps = false;
 }

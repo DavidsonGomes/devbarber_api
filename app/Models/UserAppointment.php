@@ -11,5 +11,5 @@ class UserAppointment extends Model
 
     protected $table = 'user_appointments';
 
-    protected $timestamps = false;
+    public $timestamps = false;
 }

@@ -11,5 +11,5 @@ class BarberPhoto extends Model
 
     protected $table = 'barber_photos';
 
-    protected $timestamps = false;
+    public $timestamps = false;
 }
