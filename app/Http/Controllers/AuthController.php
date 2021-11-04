@@ -65,6 +65,7 @@ class AuthController extends Controller
         }
 
         $info = Auth::user();
+        $info->avatar = url('media/avatars/'.$info->avatar);
         $array['data'] = $info;
         $array['token'] = $token;
 
