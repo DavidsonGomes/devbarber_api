@@ -13,6 +13,42 @@ class AuthController extends Controller
     {
         $this->middleware('auth:api', ['except' => ['create', 'login']]);
     }
+
+    public function login(Request $request)
+    {
+        $array = ['error' => ''];
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if($validator->fails()){
+            $array['error'] = 'Dados incorretos';
+            return $array;
+        }
+
+        $email = $request->email;
+        $password = $request->password;
+
+        $token = Auth::attempt([
+            'email' => $email, 
+            'password' => $password
+        ]);
+
+        if(!$token){
+            $array['error'] = 'Ocorreu um erro';
+            return $array;
+        }
+
+        $info = Auth::user();
+        $info->avatar = url('media/avatars/'.$info->avatar);
+        $array['data'] = $info;
+        $array['token'] = $token;
+
+        return $array;
+    }
+
     public function create(Request $request)
     {
         $array = ['error' => ''];
