@@ -11,7 +11,12 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['create', 'login']]);
+        $this->middleware('auth:api', ['except' => ['create', 'login', 'unauthorized']]);
+    }
+
+    public function unauthorized()
+    {
+        return response()->json(['error' => 'Não autorizado'], 401);
     }
 
     public function login(Request $request)
@@ -23,7 +28,7 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $array['error'] = 'Dados incorretos';
             return $array;
         }
@@ -32,17 +37,37 @@ class AuthController extends Controller
         $password = $request->password;
 
         $token = Auth::attempt([
-            'email' => $email, 
+            'email' => $email,
             'password' => $password
         ]);
 
-        if(!$token){
+        if (!$token) {
             $array['error'] = 'Ocorreu um erro';
             return $array;
         }
 
         $info = Auth::user();
-        $info->avatar = url('media/avatars/'.$info->avatar);
+        $info->avatar = url('media/avatars/' . $info->avatar);
+        $array['data'] = $info;
+        $array['token'] = $token;
+
+        return $array;
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+
+        return ['error' => ''];
+    }
+
+    public function refresh()
+    {
+        $array = ['error' => ''];
+        $token = Auth::refresh();
+
+        $info = Auth::user();
+        $info->avatar = url('media/avatars/' . $info->avatar);
         $array['data'] = $info;
         $array['token'] = $token;
 
@@ -60,7 +85,7 @@ class AuthController extends Controller
             'password_confirm' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $array['error'] = 'Dados incorretos';
             return $array;
         }
@@ -70,14 +95,14 @@ class AuthController extends Controller
         $password = $request->password;
         $passwordConfirm = $request->password_confirm;
 
-        if($password != $passwordConfirm){
+        if ($password != $passwordConfirm) {
             $array['error'] = 'As senhas não conferem';
             return $array;
         }
 
         $emailExistis = User::where('email', $email)->count();
 
-        if($emailExistis > 0){
+        if ($emailExistis > 0) {
             $array['error'] = 'Email já cadastrado';
             return $array;
         }
@@ -91,17 +116,17 @@ class AuthController extends Controller
         $newUser->save();
 
         $token = Auth::attempt([
-            'email' => $email, 
+            'email' => $email,
             'password' => $password
         ]);
 
-        if(!$token){
+        if (!$token) {
             $array['error'] = 'Ocorreu um erro';
             return $array;
         }
 
         $info = Auth::user();
-        $info->avatar = url('media/avatars/'.$info->avatar);
+        $info->avatar = url('media/avatars/' . $info->avatar);
         $array['data'] = $info;
         $array['token'] = $token;
 
